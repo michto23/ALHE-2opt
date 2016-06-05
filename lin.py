@@ -1,6 +1,8 @@
 import numpy as np
 import scipy.spatial as ssp
 import numpy.random as nprnd
+from IPython.core.display import Math
+
 import matplotlib.pyplot as plt
 from matplotlib import animation
 
@@ -56,7 +58,17 @@ def calcTourValue(optlist, distMat):
     for i in range(0, numCities - 1):
         distance = Dist[optlist[i]][optlist[i+1]]
         sum += distance
+        # sum += distance * trafficJamFunc(sum)
     return sum
+
+
+def trafficJamFunc(sum):
+    if(sum < numHigh):
+        return 1
+    elif(sum < 3 * numHigh):
+        return 2
+    else:
+        return 3
 
 
 # Generate cities
