@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 from matplotlib import animation
 
 numLow = 1
-numHigh = 100000
-numCities = 100
+numHigh = 10000
+numCities = 90
 m = 3
 Dist = np.zeros((numCities, numCities))
 
@@ -15,10 +15,12 @@ def generatecities(n):
     # Generate the coordinates of n random cities
     xcities = []
     ycities = []
-    nprnd.seed(18)
+    nprnd.seed(14)
     for x in range(0, n):
         xcities.append(nprnd.randint(numLow, numHigh))
         ycities.append(nprnd.randint(numLow, numHigh))
+    xcities[0] = numHigh/2
+    ycities[0] = numHigh/2
     return xcities, ycities
 
 
@@ -51,8 +53,10 @@ def calcTourLength(hamPath):
 
 def calcTourValue(optlist, distMat):
     sum = 0
-    for i in optlist:
-        distance = Dist[[i][i+1]]
+    for i in range(0, numCities - 1):
+        distance = Dist[optlist[i]][optlist[i+1]]
+        sum += distance
+    return sum
 
 
 # Generate cities
@@ -82,12 +86,14 @@ while True:
                 l2 = Dist[optlist[j]][optlist[j1]]
                 l3 = Dist[optlist[i]][optlist[j]]
                 l4 = Dist[optlist[i1]][optlist[j1]]
-                print(calcTourLength(optlist))
                 old = list(optlist)
                 new_path = optlist[i1:j + 1]
                 optlist[i1:j + 1] = new_path[::-1]
-                if (calcTourLength(optlist) < calcTourLength(old)):
+                if (calcTourValue(optlist, Dist) < calcTourValue(old, Dist)):
                     count += 1
+                    print("FOUND")
+                    print(calcTourLength(optlist))
+                    print(calcTourValue(optlist, Dist))
                     # print(calcTourLength(optlist))
                 else:
                     optlist = list(old)
@@ -102,7 +108,7 @@ while True:
 
 print('final optlist: ', optlist)
 for i in optlist:
-    print(i, i+1, x[i], y[i])
+    print(i, x[i], y[i])
 plotcities(optlist, [x, y])
 im_ani = animation.ArtistAnimation(fig1, ims, interval=20, repeat_delay=300000000000000, blit=True)
 plt.show()
