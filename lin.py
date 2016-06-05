@@ -7,8 +7,9 @@ from matplotlib import animation
 
 numLow = 1
 numHigh = 10000
+numCities = 20
 m = 3
-numCities = 50
+Dist = np.zeros((numCities, numCities))
 
 
 def generatecities(n):
@@ -16,7 +17,7 @@ def generatecities(n):
     xcities = []
     ycities = []
     patience = []
-    nprnd.seed(1103)
+    nprnd.seed(287)
     for x in range(0, n):
         xcities.append(nprnd.randint(numLow, numHigh))
         ycities.append(nprnd.randint(numLow, numHigh))
@@ -63,24 +64,22 @@ def genDistanceMat(x, y):
     sqdist = ssp.distance.squareform(distMat)
     return sqdist
 
-
-# def calcTourLength(hamPath):
-#     tourLength = sum(Dist[hamPath[0:-1], hamPath[1:len(hamPath)]])
-#     tourLength += Dist[hamPath[-1], hamPath[0]]
-#     return tourLength
-
 def calcTourValue(optlist, distMat):
     sum = 0
     unhappy = 0
     for i in range(0, numCities - 1):
         distance = Dist[optlist[i]][optlist[i+1]]
-        sum += distance  #* trafficJamFunc(sum)
-        unhappy += unhappyFunc(sum) #* patience[i]
+        sum += distance * trafficJamFunc(sum)
+        unhappy += unhappyFunc(distance, sum) * patience[i]
         # sum += distance * trafficJamFunc(sum)
-    return sum
+    return unhappy
 
-def unhappyFunc(sum):
-    return sum * np.math.log(sum)
+def unhappyFunc(dist, sum):
+    # print("PIZDA ",(sum/numHigh*sum/numHigh)/10)
+    # if (dist/numHigh < 0.05):
+    #     return ((sum * sum) / numHigh) * 0.05
+    # else:
+    return (sum * sum * np.math.log(sum)) / numHigh
 
 def trafficJamFunc(sum):
     if(sum < numHigh):
@@ -103,9 +102,10 @@ Dist = np.zeros((numCities, numCities))
 Dist = genDistanceMat(x, y)
 # Generate initial tour
 optlist = list(range(0, numCities))
-improvement = 1
 ims = []
-fig1 = plt.figure()
+fig1 = plt.figure(1)
+resultList = []
+resultListImprove = []
 
 total = 0
 while True:
@@ -124,12 +124,16 @@ while True:
                 l2 = Dist[optlist[j]][optlist[j1]]
                 l3 = Dist[optlist[i]][optlist[j]]
                 l4 = Dist[optlist[i1]][optlist[j1]]
+                resultList.append(calcTourValue(optlist, Dist))
                 old = list(optlist)
                 new_path = optlist[i1:j + 1]
                 optlist[i1:j + 1] = new_path[::-1]
                 if (calcTourValue(optlist, Dist) < calcTourValue(old, Dist)):
                     count += 1
                     print("FOUND old:", calcTourValue(old, Dist), " new ", calcTourValue(optlist, Dist))
+                    resultListImprove.append(calcTourValue(optlist, Dist))
+                    print(calcTourValue(optlist, Dist))
+                    # print(calcTourLength(optlist))
                 else:
                     optlist = list(old)
 
@@ -143,8 +147,16 @@ while True:
 
 print('final optlist: ', optlist)
 for i in optlist:
-    print(i, x[i], y[i])
+    print(x[i], y[i])
 calcTourValue(optlist, Dist)
 plotcities(optlist, [x, y])
+
+plt.figure(2)
+plt.subplot(211)
+plt.plot(range(len(resultListImprove)), resultListImprove, 'bo', range(len(resultListImprove)), resultListImprove, 'k') #x ,y, reprezentacja
+
+plt.subplot(212)
+plt.plot(range(len(resultList)), resultList, 'k') #x ,y, reprezentacja
+
 im_ani = animation.ArtistAnimation(fig1, ims, interval=20, repeat_delay=300000000000000, blit=True)
 plt.show()
