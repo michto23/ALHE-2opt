@@ -7,23 +7,39 @@ from matplotlib import animation
 
 numLow = 1
 numHigh = 10000
-numCities = 50
 m = 3
-Dist = np.zeros((numCities, numCities))
+numCities = 50
 
 
 def generatecities(n):
     # Generate the coordinates of n random cities
     xcities = []
     ycities = []
-    nprnd.seed(287)
+    patience = []
+    nprnd.seed(1103)
     for x in range(0, n):
         xcities.append(nprnd.randint(numLow, numHigh))
         ycities.append(nprnd.randint(numLow, numHigh))
+        patience.append(nprnd.randint(1, 4))
+
     xcities[0] = numHigh/2
     ycities[0] = numHigh/2
-    return xcities, ycities
+    return xcities, ycities, patience
 
+def readLocations():
+    file = open('input.txt', 'r')
+    x = []
+    y = []
+    p = []
+    num = 0
+    for line in file:
+        tab = line.split()
+        x.append(int(tab[0]))
+        y.append(int(tab[1]))
+        p.append(int(tab[2]))
+        num = num + 1
+    file.close()
+    return x, y, p, num
 
 def plotcities(opttour, xys):
     # Plots the cities on a square
@@ -58,13 +74,13 @@ def calcTourValue(optlist, distMat):
     unhappy = 0
     for i in range(0, numCities - 1):
         distance = Dist[optlist[i]][optlist[i+1]]
-        sum += distance * trafficJamFunc(sum)
-        unhappy += unhappyFunc(sum) * patience[i]
+        sum += distance  #* trafficJamFunc(sum)
+        unhappy += unhappyFunc(sum) #* patience[i]
         # sum += distance * trafficJamFunc(sum)
-    return unhappy
+    return sum
 
 def unhappyFunc(sum):
-    return sum*sum
+    return sum * np.math.log(sum)
 
 def trafficJamFunc(sum):
     if(sum < numHigh):
@@ -76,10 +92,13 @@ def trafficJamFunc(sum):
 
 
 # Generate cities
-x, y = generatecities(numCities)
-patience = []
-for i in range(numCities):
-    patience.append(nprnd.randint(1, 4))
+# x, y, patience = generatecities(numCities)
+
+x, y, patience, numCities = readLocations()
+
+Dist = np.zeros((numCities, numCities))
+
+
 
 Dist = genDistanceMat(x, y)
 # Generate initial tour
@@ -110,10 +129,7 @@ while True:
                 optlist[i1:j + 1] = new_path[::-1]
                 if (calcTourValue(optlist, Dist) < calcTourValue(old, Dist)):
                     count += 1
-                    print("FOUND")
-                    print(calcTourValue(optlist, Dist))
-                    print(calcTourValue(optlist, Dist))
-                    # print(calcTourLength(optlist))
+                    print("FOUND old:", calcTourValue(old, Dist), " new ", calcTourValue(optlist, Dist))
                 else:
                     optlist = list(old)
 
@@ -132,30 +148,3 @@ calcTourValue(optlist, Dist)
 plotcities(optlist, [x, y])
 im_ani = animation.ArtistAnimation(fig1, ims, interval=20, repeat_delay=300000000000000, blit=True)
 plt.show()
-
-
-
-# def opt2(path):
-#     size = 20
-#     global distance_table
-#     total = 0
-#     while True:
-#         count = 0
-#         for i in xrange(size - 2):
-#             i1 = i + 1
-#             for j in xrange(i + 2, size):
-#                 if j == size - 1:
-#                     j1 = 0
-#                 else:
-#                     j1 = j + 1
-#                 if i != 0 or j1 != 0:
-#                     l1 = Dist[optlist[i]][optlist[i1]]
-#                     l2 = Dist[optlist[j]][optlist[j1]]
-#                     l3 = Dist[optlist[i]][optlist[j]]
-#                     l4 = Dist[optlist[i1]][optlist[j1]]
-#                     if l1 + l2 > l3 + l4:
-#                         new_path = optlist[i1:j+1]
-#                         optlist[i1:j+1] = new_path[::-1]
-#                         count += 1
-#         total += count
-#         if count == 0: break
