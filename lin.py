@@ -97,7 +97,7 @@ Dist = np.zeros((numPoints, numPoints))
 
 
 Dist = generateDistanceMatrix(x, y)
-optlist = list(range(0, numPoints))
+currentBest = list(range(0, numPoints))
 ims = []
 fig1 = plt.figure(1)
 resultList = []
@@ -106,7 +106,7 @@ isTrafficOnstart = patience[0]
 
 total = 0
 while True:
-    generatePointsPlot(optlist, [x, y])
+    generatePointsPlot(currentBest, [x, y])
     count = 0
     for i in xrange(numPoints - 2):
         i1 = i + 1
@@ -116,26 +116,26 @@ while True:
             else:
                 j1 = j + 1
             if i != 0 or j1 != 0:
-                l1 = Dist[optlist[i]][optlist[i1]]
-                l2 = Dist[optlist[j]][optlist[j1]]
-                l3 = Dist[optlist[i]][optlist[j]]
-                l4 = Dist[optlist[i1]][optlist[j1]]
-                resultList.append(calcTourValue(optlist, Dist))
-                old = list(optlist)
-                new_path = optlist[i1:j + 1]
-                optlist[i1:j + 1] = new_path[::-1]
-                if (calcTourValue(optlist, Dist) < calcTourValue(old, Dist)):
+                l1 = Dist[currentBest[i]][currentBest[i1]]
+                l2 = Dist[currentBest[j]][currentBest[j1]]
+                l3 = Dist[currentBest[i]][currentBest[j]]
+                l4 = Dist[currentBest[i1]][currentBest[j1]]
+                resultList.append(calcTourValue(currentBest, Dist))
+                old = list(currentBest)
+                new_path = currentBest[i1:j + 1]
+                currentBest[i1:j + 1] = new_path[::-1]
+                if (calcTourValue(currentBest, Dist) < calcTourValue(old, Dist)):
                     count += 1
-                    resultListImprove.append(calcTourValue(optlist, Dist))
-                    print(calcTourValue(optlist, Dist))
+                    resultListImprove.append(calcTourValue(currentBest, Dist))
+                    print(calcTourValue(currentBest, Dist))
                 else:
-                    optlist = list(old)
+                    currentBest = list(old)
 
     total += count
     if count == 0: break
 
-calcTourValue(optlist, Dist)
-generatePointsPlot(optlist, [x, y])
+calcTourValue(currentBest, Dist)
+generatePointsPlot(currentBest, [x, y])
 
 plt.figure(2)
 plt.subplot(211)
