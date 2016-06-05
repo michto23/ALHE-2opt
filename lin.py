@@ -7,7 +7,7 @@ from matplotlib import animation
 
 numLow = 1
 numHigh = 10000
-numCities = 90
+numCities = 50
 m = 3
 Dist = np.zeros((numCities, numCities))
 
@@ -37,6 +37,7 @@ def plotcities(opttour, xys):
     xy1.append(xy1[0])
     xy2.append(xy2[0])
     ims.append(plt.plot(xy1, xy2, linestyle='-', marker='o', color='b', markerfacecolor='red'))
+    # ims.append(plt.plot(xy1[0], xy2[0], linestyle='-', marker='o', color='b', markerfacecolor='blue'))
     plt.ylabel('original path')
 
 
@@ -54,12 +55,17 @@ def calcTourLength(hamPath):
 
 def calcTourValue(optlist, distMat):
     sum = 0
+    unhappy = 0
     for i in range(0, numCities - 1):
         distance = Dist[optlist[i]][optlist[i+1]]
         sum += distance
+        unhappy += unhappyFunc(sum)
         # sum += distance * trafficJamFunc(sum)
-    return sum
+    return unhappy
 
+def unhappyFunc(sum):
+    # print("PIZDA ",(sum/numHigh*sum/numHigh)/10)
+    return  (sum*sum*sum)
 
 def trafficJamFunc(sum):
     if(sum < numHigh):
@@ -120,6 +126,7 @@ while True:
 print('final optlist: ', optlist)
 for i in optlist:
     print(i, x[i], y[i])
+calcTourValue(optlist, Dist)
 plotcities(optlist, [x, y])
 im_ani = animation.ArtistAnimation(fig1, ims, interval=20, repeat_delay=300000000000000, blit=True)
 plt.show()
