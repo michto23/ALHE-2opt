@@ -8,8 +8,8 @@ from matplotlib import animation
 numLow = 1
 numHigh = 10000
 numCities = 20
-m = 3
 Dist = np.zeros((numCities, numCities))
+isTrafficOnstart = 0
 
 
 def generatecities(n):
@@ -50,7 +50,8 @@ def plotcities(opttour, xys):
     xy1.append(xy1[0])
     xy2.append(xy2[0])
     ims.append(plt.plot(xy1, xy2, linestyle='-', marker='o', color='b', markerfacecolor='red'))
-    plt.ylabel('original path')
+    # ims.append(plt.plot(xy1[0], xy2[0], linestyle='-', marker='o', color='b', markerfacecolor='blue'))
+    plt.ylabel('Trasa dostawcy pizzy')
 
 
 def genDistanceMat(x, y):
@@ -73,12 +74,20 @@ def unhappyFunc(dist, sum):
     return (sum * sum * np.math.log(sum)) / numHigh
 
 def trafficJamFunc(sum):
-    if(sum < numHigh):
-        return 1
-    elif(sum < 3 * numHigh):
-        return 2
-    else:
-        return 3
+    if (isTrafficOnstart == 0):
+        if(sum < numHigh):
+            return 1
+        elif(sum < 3 * numHigh):
+            return 2
+        else:
+            return 3
+    elif (isTrafficOnstart == 1):
+        if (sum < numHigh):
+            return 3
+        elif (sum < 3 * numHigh):
+            return 2
+        else:
+            return 1
 
 
 # Generate cities
