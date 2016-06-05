@@ -43,18 +43,13 @@ def readLocations():
     return x, y, p, num
 
 def plotcities(opttour, xys):
-    # Plots the cities on a square
-    # Input: list of 2 lists with x,y coordinates on each list
     xy1 = xys[0][:]
     xy2 = xys[1][:]
-    # Sort according to latest tour optimization
     xy1 = [xy1[i] for i in opttour]
     xy2 = [xy2[i] for i in opttour]
-    # Make it a cycle
     xy1.append(xy1[0])
     xy2.append(xy2[0])
     ims.append(plt.plot(xy1, xy2, linestyle='-', marker='o', color='b', markerfacecolor='red'))
-    # ims.append(plt.plot(xy1[0], xy2[0], linestyle='-', marker='o', color='b', markerfacecolor='blue'))
     plt.ylabel('original path')
 
 
@@ -75,10 +70,6 @@ def calcTourValue(optlist, distMat):
     return unhappy
 
 def unhappyFunc(dist, sum):
-    # print("PIZDA ",(sum/numHigh*sum/numHigh)/10)
-    # if (dist/numHigh < 0.05):
-    #     return ((sum * sum) / numHigh) * 0.05
-    # else:
     return (sum * sum * np.math.log(sum)) / numHigh
 
 def trafficJamFunc(sum):
@@ -112,7 +103,6 @@ while True:
     plotcities(optlist, [x, y])
     count = 0
     for i in xrange(numCities - 2):
-        # plotcities(optlist, [x, y])
         i1 = i + 1
         for j in xrange(i + 2, numCities):
             if j == numCities - 1:
@@ -130,18 +120,11 @@ while True:
                 optlist[i1:j + 1] = new_path[::-1]
                 if (calcTourValue(optlist, Dist) < calcTourValue(old, Dist)):
                     count += 1
-                    print("FOUND old:", calcTourValue(old, Dist), " new ", calcTourValue(optlist, Dist))
                     resultListImprove.append(calcTourValue(optlist, Dist))
                     print(calcTourValue(optlist, Dist))
-                    # print(calcTourLength(optlist))
                 else:
                     optlist = list(old)
 
-                # if l1 + l2 > l3 + l4:
-                #     new_path = optlist[i1:j + 1]
-                #     optlist[i1:j + 1] = new_path[::-1]
-                #     count += 1
-                #     print(calcTourLength(optlist))
     total += count
     if count == 0: break
 
@@ -159,4 +142,6 @@ plt.subplot(212)
 plt.plot(range(len(resultList)), resultList, 'k') #x ,y, reprezentacja
 
 im_ani = animation.ArtistAnimation(fig1, ims, interval=20, repeat_delay=300000000000000, blit=True)
+
+
 plt.show()
