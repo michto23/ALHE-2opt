@@ -1,7 +1,6 @@
 import numpy as np
 import scipy.spatial as ssp
 import numpy.random as nprnd
-from IPython.core.display import Math
 
 import matplotlib.pyplot as plt
 from matplotlib import animation
