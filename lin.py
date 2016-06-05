@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 from matplotlib import animation
 
 numLow = 1
-numHigh = 100
-numCities = 500
+numHigh = 100000
+numCities = 100
 m = 3
 Dist = np.zeros((numCities, numCities))
 
@@ -49,6 +49,11 @@ def calcTourLength(hamPath):
     tourLength += Dist[hamPath[-1], hamPath[0]]
     return tourLength
 
+def calcTourValue(optlist, distMat):
+    sum = 0
+    for i in optlist:
+        distance = Dist[[i][i+1]]
+
 
 # Generate cities
 x, y = generatecities(numCities)
@@ -60,16 +65,15 @@ improvement = 1
 ims = []
 fig1 = plt.figure()
 
-size = 500
 total = 0
 while True:
     plotcities(optlist, [x, y])
     count = 0
-    for i in xrange(size - 2):
+    for i in xrange(numCities - 2):
         # plotcities(optlist, [x, y])
         i1 = i + 1
-        for j in xrange(i + 2, size):
-            if j == size - 1:
+        for j in xrange(i + 2, numCities):
+            if j == numCities - 1:
                 j1 = 0
             else:
                 j1 = j + 1
@@ -78,16 +82,27 @@ while True:
                 l2 = Dist[optlist[j]][optlist[j1]]
                 l3 = Dist[optlist[i]][optlist[j]]
                 l4 = Dist[optlist[i1]][optlist[j1]]
-                if l1 + l2 > l3 + l4:
-                    new_path = optlist[i1:j + 1]
-                    optlist[i1:j + 1] = new_path[::-1]
+                print(calcTourLength(optlist))
+                old = list(optlist)
+                new_path = optlist[i1:j + 1]
+                optlist[i1:j + 1] = new_path[::-1]
+                if (calcTourLength(optlist) < calcTourLength(old)):
                     count += 1
+                    # print(calcTourLength(optlist))
+                else:
+                    optlist = list(old)
+
+                # if l1 + l2 > l3 + l4:
+                #     new_path = optlist[i1:j + 1]
+                #     optlist[i1:j + 1] = new_path[::-1]
+                #     count += 1
+                #     print(calcTourLength(optlist))
     total += count
     if count == 0: break
 
 print('final optlist: ', optlist)
 for i in optlist:
-    print(i, x[i], y[i])
+    print(i, i+1, x[i], y[i])
 plotcities(optlist, [x, y])
 im_ani = animation.ArtistAnimation(fig1, ims, interval=20, repeat_delay=300000000000000, blit=True)
 plt.show()
