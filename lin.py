@@ -16,7 +16,7 @@ def generatecities(n):
     # Generate the coordinates of n random cities
     xcities = []
     ycities = []
-    nprnd.seed(14)
+    nprnd.seed(287)
     for x in range(0, n):
         xcities.append(nprnd.randint(numLow, numHigh))
         ycities.append(nprnd.randint(numLow, numHigh))
@@ -48,24 +48,23 @@ def genDistanceMat(x, y):
     return sqdist
 
 
-def calcTourLength(hamPath):
-    tourLength = sum(Dist[hamPath[0:-1], hamPath[1:len(hamPath)]])
-    tourLength += Dist[hamPath[-1], hamPath[0]]
-    return tourLength
+# def calcTourLength(hamPath):
+#     tourLength = sum(Dist[hamPath[0:-1], hamPath[1:len(hamPath)]])
+#     tourLength += Dist[hamPath[-1], hamPath[0]]
+#     return tourLength
 
 def calcTourValue(optlist, distMat):
     sum = 0
     unhappy = 0
     for i in range(0, numCities - 1):
         distance = Dist[optlist[i]][optlist[i+1]]
-        sum += distance
-        unhappy += unhappyFunc(sum)
+        sum += distance * trafficJamFunc(sum)
+        unhappy += unhappyFunc(sum) * patience[i]
         # sum += distance * trafficJamFunc(sum)
     return unhappy
 
 def unhappyFunc(sum):
-    # print("PIZDA ",(sum/numHigh*sum/numHigh)/10)
-    return  (sum*sum*sum)
+    return sum*sum
 
 def trafficJamFunc(sum):
     if(sum < numHigh):
@@ -78,6 +77,9 @@ def trafficJamFunc(sum):
 
 # Generate cities
 x, y = generatecities(numCities)
+patience = []
+for i in range(numCities):
+    patience.append(nprnd.randint(1, 4))
 
 Dist = genDistanceMat(x, y)
 # Generate initial tour
@@ -109,7 +111,7 @@ while True:
                 if (calcTourValue(optlist, Dist) < calcTourValue(old, Dist)):
                     count += 1
                     print("FOUND")
-                    print(calcTourLength(optlist))
+                    print(calcTourValue(optlist, Dist))
                     print(calcTourValue(optlist, Dist))
                     # print(calcTourLength(optlist))
                 else:
