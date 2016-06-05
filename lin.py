@@ -106,6 +106,7 @@ ims = []
 fig1 = plt.figure(1)
 resultList = []
 resultListImprove = []
+isTrafficOnstart = patience[0]
 
 total = 0
 while True:
