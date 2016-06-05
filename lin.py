@@ -5,27 +5,26 @@ import numpy.random as nprnd
 import matplotlib.pyplot as plt
 from matplotlib import animation
 
-numLow = 1
-numHigh = 10000
-numCities = 20
-Dist = np.zeros((numCities, numCities))
+minCoordinate = 1
+maxCoordinate = 10000
+numPoints = 20
+Dist = np.zeros((numPoints, numPoints))
 isTrafficOnstart = 0
 
-
-def generatecities(n):
-    # Generate the coordinates of n random cities
-    xcities = []
-    ycities = []
-    patience = []
+def createPoints(n):
+    x = []
+    y = []
+    p = []
     nprnd.seed(287)
-    for x in range(0, n):
-        xcities.append(nprnd.randint(numLow, numHigh))
-        ycities.append(nprnd.randint(numLow, numHigh))
-        patience.append(nprnd.randint(1, 4))
+    for i in range(0, n):
+        x.append(nprnd.randint(minCoordinate, maxCoordinate))
+        y.append(nprnd.randint(minCoordinate, maxCoordinate))
+        p.append(nprnd.randint(1, 4))
 
-    xcities[0] = numHigh/2
-    ycities[0] = numHigh/2
-    return xcities, ycities, patience
+    x[0] = maxCoordinate / 2
+    y[0] = maxCoordinate / 2
+    p[0] = 0;
+    return x, y, p
 
 def readLocations():
     file = open('input.txt', 'r')
@@ -42,7 +41,7 @@ def readLocations():
     file.close()
     return x, y, p, num
 
-def plotcities(opttour, xys):
+def generatePointsPlot(opttour, xys):
     xy1 = xys[0][:]
     xy2 = xys[1][:]
     xy1 = [xy1[i] for i in opttour]
@@ -54,7 +53,7 @@ def plotcities(opttour, xys):
     plt.ylabel('Trasa dostawcy pizzy')
 
 
-def genDistanceMat(x, y):
+def generateDistanceMatrix(x, y):
     X = np.array([x, y])
     distMat = ssp.distance.pdist(X.T)
     sqdist = ssp.distance.squareform(distMat)
@@ -63,7 +62,7 @@ def genDistanceMat(x, y):
 def calcTourValue(optlist, distMat):
     sum = 0
     unhappy = 0
-    for i in range(0, numCities - 1):
+    for i in range(0, numPoints - 1):
         distance = Dist[optlist[i]][optlist[i+1]]
         sum += distance * trafficJamFunc(sum)
         unhappy += unhappyFunc(distance, sum) * patience[i]
@@ -71,37 +70,34 @@ def calcTourValue(optlist, distMat):
     return unhappy
 
 def unhappyFunc(dist, sum):
-    return (sum * sum * np.math.log(sum)) / numHigh
+    return (sum * sum * np.math.log(sum)) / maxCoordinate
 
 def trafficJamFunc(sum):
     if (isTrafficOnstart == 0):
-        if(sum < numHigh):
+        if(sum < maxCoordinate):
             return 1
-        elif(sum < 3 * numHigh):
+        elif(sum < 3 * maxCoordinate):
             return 2
         else:
             return 3
-    elif (isTrafficOnstart == 1):
-        if (sum < numHigh):
+    else:
+        if (sum < maxCoordinate):
             return 3
-        elif (sum < 3 * numHigh):
+        elif (sum < 3 * maxCoordinate):
             return 2
         else:
             return 1
 
+#x, y, patience = createPoints(numPoints)
 
-# Generate cities
-# x, y, patience = generatecities(numCities)
+x, y, patience, numPoints = readLocations()
 
-x, y, patience, numCities = readLocations()
-
-Dist = np.zeros((numCities, numCities))
+Dist = np.zeros((numPoints, numPoints))
 
 
 
-Dist = genDistanceMat(x, y)
-# Generate initial tour
-optlist = list(range(0, numCities))
+Dist = generateDistanceMatrix(x, y)
+optlist = list(range(0, numPoints))
 ims = []
 fig1 = plt.figure(1)
 resultList = []
@@ -110,12 +106,12 @@ isTrafficOnstart = patience[0]
 
 total = 0
 while True:
-    plotcities(optlist, [x, y])
+    generatePointsPlot(optlist, [x, y])
     count = 0
-    for i in xrange(numCities - 2):
+    for i in xrange(numPoints - 2):
         i1 = i + 1
-        for j in xrange(i + 2, numCities):
-            if j == numCities - 1:
+        for j in xrange(i + 2, numPoints):
+            if j == numPoints - 1:
                 j1 = 0
             else:
                 j1 = j + 1
@@ -138,11 +134,8 @@ while True:
     total += count
     if count == 0: break
 
-print('final optlist: ', optlist)
-for i in optlist:
-    print(x[i], y[i])
 calcTourValue(optlist, Dist)
-plotcities(optlist, [x, y])
+generatePointsPlot(optlist, [x, y])
 
 plt.figure(2)
 plt.subplot(211)
@@ -152,6 +145,5 @@ plt.subplot(212)
 plt.plot(range(len(resultList)), resultList, 'k') #x ,y, reprezentacja
 
 im_ani = animation.ArtistAnimation(fig1, ims, interval=20, repeat_delay=300000000000000, blit=True)
-
 
 plt.show()
